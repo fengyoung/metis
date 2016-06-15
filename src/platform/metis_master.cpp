@@ -1,0 +1,104 @@
+#include <iostream>
+using namespace std; 
+#include "MasterTrainer.h"
+#include "MasterTrainer_Perceptron.h"
+#include "MasterTrainer_MLP.h"
+using namespace metis_plat; 
+#include <stdio.h>
+#include <string.h>
+
+
+
+int main(int argc, char** argv)
+{
+	if(argc < 6)
+	{
+		cout<<"Usage: metis_master <slave_list_file> <patt_files...> [--new_percep <percetron_config_file> <out_model_file>]"<<endl; 
+		cout<<"                                                      [--new_mlp <mlp_config_file> <out_model_file>]"<<endl; 
+		cout<<"                                                      [--incr_percep <old_model_file> <out_model_file>]"<<endl; 
+		cout<<"                                                      [--incr_mlp <old_model_file> <out_model_file>]"<<endl; 
+		return -1; 
+	}
+
+	MasterTrainer* p_master_trainer = NULL; 
+	bool by_conf; 
+
+	printf("=============================================\n");
+	printf("=  METIS, Neural Network Parallel Training  =\n");
+	printf("=============================================\n");
+	
+	if(strcmp(argv[argc-3], "--new_percep") == 0)
+	{
+		p_master_trainer = new MasterTrainer_Perceptron(); 
+		by_conf = true; 
+	}	
+	else if(strcmp(argv[argc-3], "--new_mlp") == 0)
+	{
+		p_master_trainer = new MasterTrainer_MLP(); 
+		by_conf = true; 
+	}
+	else if(strcmp(argv[argc-3], "--incr_percep") == 0)
+	{
+		p_master_trainer = new MasterTrainer_Perceptron(); 
+		by_conf = false; 
+	}
+	else if(strcmp(argv[argc-3], "--incr_mlp") == 0)
+	{
+		p_master_trainer = new MasterTrainer_MLP(); 
+		by_conf = false; 
+	}
+	else
+	{	
+		cout<<"unsupported command, exit!"<<endl; 
+		return -2; 
+	}	
+
+	
+
+	// 载入slave列表, 并检测
+	if(!p_master_trainer->LoadSlaves(argv[1]))
+	{
+		delete p_master_trainer; 
+		return -2; 
+	}
+	// 释放所有slave资源
+	p_master_trainer->ReleaseSlaves(); 
+	// mapping训练样本
+	vector<string> vtr_patt_files; 
+	for(int32_t i = 2; i < argc-3; i++) 
+		vtr_patt_files.push_back(argv[i]); 
+	if(p_master_trainer->PattsMapping(vtr_patt_files) <= 0)
+	{
+		delete p_master_trainer; 
+		return -3; 
+	}
+	// 初始化模型
+	if(by_conf)
+	{
+		if(!p_master_trainer->InitByLearningConfig(argv[argc-2]))
+		{
+			delete p_master_trainer; 
+			cout<<"failed to initalize the Trainer by config, exit!"<<endl; 
+			return -4; 
+		}
+	}
+	else
+	{
+		if(!p_master_trainer->InitByModel(argv[argc-2])) 
+		{
+			delete p_master_trainer; 
+			cout<<"failed to initalize the Trainer by history model, exit!"<<endl; 
+			return -4; 
+		}
+	}
+	// 执行训练
+	p_master_trainer->Train(argv[argc-1]); 
+	
+	// 释放所有slave资源
+	p_master_trainer->ReleaseSlaves(); 
+
+	delete p_master_trainer; 
+	return 0; 
+}
+
+
