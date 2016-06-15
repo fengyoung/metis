@@ -35,9 +35,9 @@ public:
 	void Init(ServConf& servConf); 
 	
 	static bool Send(const char* sHost, const int32_t nPort, const char* sCmd, Json::Value& jsonReqBody, Json::Value& jsonResp, 
-			const int32_t nLogId = 2016, const int32_t nSendTimeoutMs = 1000, const int32_t nRecvTimeoutMs = 1000); 
+			const int32_t nLogId = 2016, const int32_t nSendTimeoutMs = 2000, const int32_t nRecvTimeoutMs = 2000); 
 	static bool Send(const char* sHostPort, const char* sCmd, Json::Value& jsonReqBody, Json::Value& jsonResp, 
-			const int32_t nLogId = 2016, const int32_t nSendTimeoutMs = 1000, const int32_t nRecvTimeoutMs = 1000); 
+			const int32_t nLogId = 2016, const int32_t nSendTimeoutMs = 2000, const int32_t nRecvTimeoutMs = 2000); 
 
 	virtual void WorkCore(Json::Value& jsonReq, Json::Value& jsonResp) = 0; 
 
