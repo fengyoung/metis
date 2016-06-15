@@ -117,8 +117,8 @@ int32_t MasterTrainer::PattsMapping(vector<string>& vtrPattFiles)
 
 	timer.Stop();
 	printf("time_cost(s): %.3f\n", timer.GetLast_asSec());
-	
-	
+
+
 	return m_nPattCnt; 
 }
 
@@ -226,16 +226,10 @@ bool MasterTrainer::GetModelFromSlave(const char* sSlaveHostPort, string& strMod
 // 按照输入的文件路径+文件名, 生成临时文件路径+文件名
 string MasterTrainer::TempFile(const char* sOutFile)
 {
-	StringArray ar(sOutFile, "/"); 
-	string tmp_file; 
-	for(int32_t i = 0; i < ar.Count() - 1; i++) 
-	{
-		if(i != 0)
-			tmp_file += "/"; 
-		tmp_file += ar.GetString(i); 
-	}	
-	tmp_file += ("." + ar.GetString(ar.Count()-1) + ".metis.tmp." + TimeFmt::CurTime_asStr(_TIME_FMT_COMPACT));
-	return tmp_file; 
+	string tmp_file(sOutFile);
+	tmp_file += ".METIS.TMP.";
+	tmp_file += TimeFmt::CurTime_asStr(_TIME_FMT_COMPACT);
+	return tmp_file;
 }
 
 
