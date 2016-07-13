@@ -147,7 +147,7 @@ void MLP::TrainAndValidate(vector<Pattern*>& vtrPatts)
 	int32_t cross_cnt = (int32_t)vtrPatts.size() / 20;			// 5% patterns for corss validation
 	int32_t train_cnt = (int32_t)vtrPatts.size() - cross_cnt;	// 95% patterns for training
 	double learning_rate = m_paramsLearning.learning_rate;	// learning rate, it would be update after every iteration
-	double last_error = -1.0, error, rmse, last_rmse = -1.0;	// training error and RMSE in one iteration
+	double error, rmse, last_error = -1.0, last_rmse = -1.0;	// training error and RMSE in one iteration
 	pair<double,double> validation;	// precision and RMSE of validation 
 	Timer timer;		// timer
 	int32_t patt_cnt = 0; 

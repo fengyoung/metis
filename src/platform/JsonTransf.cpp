@@ -48,7 +48,7 @@ bool JsonTransf::StringToJsonCpp(Json::Value& jsonValue, const char* sJsonStr)
 	if(!sJsonStr)
 		return false; 
 
-	Json::Reader reader; 
+	Json::Reader reader(Json::Features::strictMode()); 
 	try
 	{
 		return reader.parse(sJsonStr, jsonValue); 

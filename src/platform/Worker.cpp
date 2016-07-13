@@ -32,40 +32,40 @@ void Worker::Init(ServConf& servConf)
 }
 
 
-bool Worker::Send(const char* sHost, const int32_t nPort, const char* sCmd, Json::Value& jsonReqBody, Json::Value& jsonResp, 
-			const int32_t nLogId, const int32_t nSendTimeoutMs, const int32_t nRecvTimeoutMs) 
+bool Worker::Send(const char* sHostPort, const char* sCmd, Json::Value& jsonReqBody, Json::Value& jsonResp, 
+		const int32_t nLogId, const int32_t nSendTimeoutMs, const int32_t nRecvTimeoutMs) 
 {
+	string host; 
+	int32_t port;
+	Ether::StringToHostPort(host, port, sHostPort);
 
 	Json::Value json_req; 
 	json_req["cmd"] = sCmd; 
 	json_req["body"] = jsonReqBody; 
 	string str_req = JsonTransf::JsonCppToString(json_req); 
 	uint32_t send_len = str_req.length(); 
-	char s_resp[_RESP_BUF_SIZE];
+	char* s_resp = new char[_RESP_BUF_SIZE];
 	uint32_t recv_len; 	
 
-	woo::binary_client_t *cli = woo::binary_client_create(sHost, nPort, nSendTimeoutMs * 1000, nRecvTimeoutMs * 1000);  
+	woo::binary_client_t *cli = woo::binary_client_create(host.c_str(), port, nSendTimeoutMs * 1000, nRecvTimeoutMs * 1000);  
 	ssize_t ret = woo::binary_client_talk(cli, str_req.c_str(), send_len, s_resp, &recv_len, _RESP_BUF_SIZE, nLogId); 
 	binary_client_destroy(cli); 
-	
-	if(ret) 
+
+	if(ret)
+	{
+		delete s_resp;  
 		return false; 
-	
+	}	
+
 	s_resp[recv_len] = '\0'; 
 	if(!JsonTransf::StringToJsonCpp(jsonResp, s_resp))
+	{
+		delete s_resp;  
 		return false; 
+	}
 
+	delete s_resp;  
 	return true; 
-}
-
-
-bool Worker::Send(const char* sHostPort, const char* sCmd, Json::Value& jsonReqBody, Json::Value& jsonResp, 
-			const int32_t nLogId, const int32_t nSendTimeoutMs, const int32_t nRecvTimeoutMs) 
-{
-	string host; 
-	int32_t port; 
-	Ether::StringToHostPort(host, port, sHostPort); 
-	return Send(host.c_str(), port, sCmd, jsonReqBody, jsonResp, nLogId, nSendTimeoutMs, nRecvTimeoutMs);
 }
 
 

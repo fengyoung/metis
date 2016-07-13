@@ -31,6 +31,7 @@ public:
 	// RETURN
 	//	random value
 	static double RandUni(const double left = 0.0, const double right = 1.0);
+	static int32_t RandUni_Int(const int32_t left, const int32_t right); 
 	
 	// NAME	
 	//	RandNormal - generate random value based on normal distribution based on Box-Muller algorithm

@@ -10,16 +10,15 @@ using namespace metis_nn;
 #include <stdint.h>
 
 #define _UPDATING_WAIT_MICRO_SEC	(1000*100)
-
+#define _DEFAULT_MAX_THREADS		12
 
 namespace metis_plat
 {
 
 typedef struct _thread_pattmapping_paramT
 {
-	string slave_hostport; 
-	int32_t slave_id; 
-	int32_t slave_cnt; 
+	int32_t threads; 
+	vector<string> slaves; 
 	vector<string> patt_files; 
 } ThPattMappingParamT; 
 
@@ -37,7 +36,7 @@ public:
 	void ReleaseSlaves(); 
 
 	// mapping训练样本
-	int32_t PattsMapping(vector<string>& vtrPattFiles);
+	int32_t PattsMapping(vector<string>& vtrPattFiles, const int32_t nThreads = _DEFAULT_MAX_THREADS);
 
 	// 初始化模型
 	virtual bool InitByLearningConfig(const char* sLearningConfFile) = 0;
@@ -90,6 +89,8 @@ protected:
 	static int32_t m_nInput; 
 	static int32_t m_nOutput; 
 	static int32_t m_nPattCnt; 
+
+	static ThPattMappingParamT m_thPattMappingParamT; 
 };
 
 }

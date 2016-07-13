@@ -32,6 +32,12 @@ double Random::RandUni(const double left, const double right)
 }
 
 
+int32_t Random::RandUni_Int(const int32_t left, const int32_t right)
+{
+	return left + RandInt() % (right - left); 
+}
+
+
 double Random::RandNormal(const double mu, const double sigma)
 {
 	double u1 = RandUni(); 

@@ -22,8 +22,8 @@ OBJS += $(SRC_PREDICTION_PATH)/Model_Perceptron.o
 OBJS += $(SRC_PREDICTION_PATH)/Model_MLP.o
 
 PLAT_OBJS = $(SRC_PLATFORM_PATH)/Ether.o
-PLAT_OBJS += $(SRC_PLATFORM_PATH)/ServConf.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/JsonTransf.o
+PLAT_OBJS += $(SRC_PLATFORM_PATH)/ServConf.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/ThreadRWLock.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/SubMLP.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/SubPerceptron.o
@@ -44,7 +44,6 @@ BIN_PATH = ../bin/
 EXAMPLES = $(BIN_PATH)/perceptron_example
 EXAMPLES += $(BIN_PATH)/mlp_example
 EXAMPLES += $(BIN_PATH)/predict_example 
-#EXAMPLES += $(BIN_PATH)/predict_avg_example 
 
 PLAT_BIN = $(BIN_PATH)/metis_slave
 PLAT_BIN += $(BIN_PATH)/metis_master
@@ -74,9 +73,6 @@ $(BIN_PATH)/mlp_example: $(SRC_EXAMPLE_PATH)/mlp_example.o
 
 $(BIN_PATH)/predict_example: $(SRC_EXAMPLE_PATH)/predict_example.o
 	$(CXX) $(CFLAGS) -o $@ $< -L$(LIB_OUT_PATH) -lmetis
-
-#$(BIN_PATH)/predict_avg_example: $(SRC_EXAMPLE_PATH)/predict_avg_example.o
-#	$(CXX) $(CFLAGS) -o $@ $< -L$(LIB_OUT_PATH) -lmetis
 
 $(BIN_PATH)/metis_slave: $(SRC_PLATFORM_PATH)/metis_slave.o $(PLAT_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $< $(PLAT_OBJS) -L$(LIB_OUT_PATH) -L../depend/woo/lib/ -L../depend/jsoncpp/lib/ -lmetis -lwoo -ljsoncpp -pthread
