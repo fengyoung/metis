@@ -1,3 +1,14 @@
+// Pattern.h
+//
+// Definition of class Pattern, which is used for stroing training samples
+//
+// AUTHOR
+//	fengyoung (fengyoung82@sina.cn)
+// 
+// HISTORY
+//	v1.0 2016-03-14
+//
+
 #ifndef _METIS_NN_PATTERN_H 
 #define _METIS_NN_PATTERN_H 
 
@@ -21,6 +32,10 @@ namespace metis_nn
 class Pattern
 {
 public:
+	// Construction & Destruction
+	//
+	// DESCRIPTION
+	//	nXCnt / nYCnt: size of feature vector and label arrays
 	Pattern(); 
 	Pattern(const int32_t nXCnt, const int32_t nYCnt); 
 	Pattern(const Pattern& patt); 
@@ -37,7 +52,7 @@ public:
 	string ToString();  
 	
 	// NAME	
-	//	FromString - parse string and create current patterns 
+	//	FromString - parse string and create current pattern
 	//
 	// DESCRITPION
 	//	sStr: pattern in string format
@@ -45,6 +60,27 @@ public:
 	// RETURN
 	//	true for success, false for some errors
 	bool FromString(const char* sStr);  
+
+	// NAME
+	//	ToStream - transform current pattern to bit-stream 
+	//
+	// DESCRIPTION
+	//	bitStream - output bit-stream which stores pattern data
+	//
+	// RETURN
+	//	length of the bit-stream
+	int32_t ToStream(char* bitStream);
+
+	// NAME
+	//	FromStream - parse bit-stream and create current pattern 
+	//
+	// DESCRIPTION
+	//	bitStream - input bit-stream which stores pattern data
+	//	nLen - length of bit-stream
+	//
+	// RETURN
+	//	true for success, false for some errors
+	bool FromStream(const char* bitStream, const int32_t nLen); 
 
 	// NAME
 	//	LoadPartterns - load partterns from data file
@@ -93,9 +129,25 @@ public:
 	//	The difference value
 	static double Error(const double* y1, const double* y2, const int32_t len); 
 
-	// Print an array to stream
+	// NAME
+	//	Print_Array - print an array to stream
+	//
+	// DESCRIPTION
+	//	os: output stream 
+	//	x: array
+	//	len: length of the array
 	static void Print_Array(ostream& os, const double* x, const int32_t len); 
-	// Read an array from stream
+
+	// NAME
+	//  Read_Array - read an array from stream
+	//
+	// DESCRIPTION
+	//	x: array
+	//	len: length of the array
+	//	is: input stream 
+	// 
+	// RETURN
+	//	true for success, false for some error
 	static bool Read_Array(double* x, const int32_t len, istream& is); 
 
 public:

@@ -13,7 +13,7 @@
 // (4) the output activation can be set as 'none' for regression
 //
 // AUTHOR
-//	fengyoung (fengyoung82@sina.com)
+//	fengyoung (fengyoung82@sina.cn)
 // 
 // HISTORY
 //	v1.0 2016-03-14
@@ -43,7 +43,8 @@ namespace metis_nn
 //
 class Perceptron
 {
-public: 
+public:
+	// Construction & Destruction
 	Perceptron();
 	virtual ~Perceptron();
 
@@ -103,6 +104,13 @@ public:
 	// Get architecture parameters 
 	PerceptronParamsT GetArchParams(); 
 
+	// Set current Perceptron by model string
+	bool SetByModelString(const char* sModelStr); 
+	// Convert current Perceptron to model string
+	string ConvToModelString(); 
+	// Combine current Perceptron which another model
+	bool CombineWith(Perceptron& perc, const double w0, const double w1);
+
 protected:
 	// Create inner objects, allocate menory
 	void Create();
@@ -155,15 +163,6 @@ protected:
 	pair<double, double> Validation(vector<Pattern*>& vtrPatts, const int32_t nBackCnt);
 
 
-	////////////////////////////////////////////////////////////////////////////
-
-public: 	
-	bool SetByModelString(const char* sStr); 
-	string ConvToModelString(); 	
-	bool CombineWith(Perceptron& perc, const double w0, const double w1);
-
-
-	////////////////////////////////////////////////////////////////////////////
 public: 
 	// model variables
 	Matrix m_wo;		// transform matrix

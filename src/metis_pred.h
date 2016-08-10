@@ -3,6 +3,7 @@
 
 #include "prediction/Model.h"
 #include "prediction/Model_Perceptron.h"
+#include "prediction/Model_FM.h"
 #include "prediction/Model_MLP.h"
 //using namespace metis_pred; 
 

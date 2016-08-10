@@ -1,3 +1,14 @@
+// Matrix.h
+//
+// Definition of class Matrix
+//
+// AUTHOR
+//	fengyoung (fengyoung82@sina.cn)
+// 
+// HISTORY
+//	v1.0 2016-03-14
+//
+
 #ifndef _METIS_NN_MATRIX_H 
 #define _METIS_NN_MATRIX_H 
 
@@ -17,6 +28,7 @@ namespace metis_nn
 class Matrix
 {
 public:
+	// Construction & Destruction
 	Matrix(); 
 	Matrix(const int32_t nRows, const int32_t nCols);
 	virtual ~Matrix();
@@ -28,7 +40,9 @@ public:
 	//	nRows - number of rows
 	//	nCols - numer of columes
 	void Create(const int32_t nRows, const int32_t nCols); 
-	
+
+	// NAME
+	//	Release - release current matrix
 	void Release(); 
 
 	// NAME
@@ -47,24 +61,72 @@ public:
 	// Reload the subscrip
 	double* operator [] (const int32_t row);
 
-	// Determine whether the matrix is null
-	bool IsNull(); 
-
-	// Get the number of rows or columes 
+	// NAME
+	//	IsNull - determine whether the matrix is null
+	//
+	// RETURN 
+	//	true or false
+	bool IsNull();
+	
+	// NAME 
+	//	Rows / Cols - get the number of rows or columes 
+	// 
+	// RETURN
+	//	rows or columes of current matrix
 	int32_t Rows(); 
 	int32_t Cols(); 
 
-	// Sparsificate the matrix
+	// NAME
+	//	Sparsification - sparsificate the matrix
+	//
+	// DESCRIPTION
+	//	dSpTh: value threshold for sparsification
 	void Sparsification(const double dSpTh = 0.000000000001); 
 
-	// Print a matrix object to stream
+	// NAME
+	//	Print_Matrix - print a matrix object to stream
+	// 
+	// DESCRIPTION
+	//	os: output stream
+	//	mat: matrix
 	static void Print_Matrix(ostream& os, Matrix& mat);
-	// Read a matrix object from stream
+	
+	// NAME	
+	//	Read_Matrix - read a matrix object from stream
+	//
+	// DESCRIPTION
+	//	mat: matrix
+	//	is: input stream
+	//
+	// RETURN
+	//	true for success, false for some errors
 	static bool Read_Matrix(Matrix& mat, istream& is);
 
+	// NAME
+	//	CombineWith - combine with other matrix.  
+	//
+	// DESCRIPTION
+	//	M = M * w0 + M1 * w1 
+	//  mat: matrix which is used for combination
+	//  w0: weight of current matrix
+	//  w1: weight of mat
+	//
+	// RETURN
+	//	true for success, false for some errors
 	bool CombineWith(Matrix& mat, const double w0 = 1.0, const double w1 = 1.0);
 
-	string ToString(); 
+	// NAME
+	//	ToString - trasform current matrix to string format
+	string ToString();
+
+	// NAME
+	//	FromString - parse string to construct current matrix
+	//
+	// DESCRIPTION
+	//	sStr: matrix in string
+	//
+	// RETURN
+	//	true for success, false for some errors
 	bool FromString(const char* sStr); 
 
 private: 
@@ -76,4 +138,5 @@ private:
 }
 
 #endif /* _METIS_NN_MATRIX_H */
+
 

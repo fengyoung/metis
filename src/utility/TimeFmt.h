@@ -1,3 +1,14 @@
+// TimeFmt.h
+//
+// Definition of class TimeFmt
+//
+// AUTHOR
+//	fengyoung (fengyoung82@sina.cn)
+// 
+// HISTORY
+//	v1.0 2016-03-14
+//
+
 #ifndef _METIS_UTILITY_TIME_FMT_H 
 #define _METIS_UTILITY_TIME_FMT_H 
 
@@ -8,72 +19,95 @@ using namespace std;
 namespace metis_uti
 {
 
-// 时间的字符串格式类型
+// Format type of time string
 enum ETimeFmtType
 {
-	_TIME_FMT_STD,		// 标准格式："YYYY-MM-DD hh:mm:ss"
-	_TIME_FMT_NOBLANK,	// 无空格格式："YYYY-MM-DD_hh:mm:ss"
-	_TIME_FMT_COMPACT	// 紧凑格式："YYYYMMDDhhmmss"
+	_TIME_FMT_STD,		// standard format "YYYY-MM-DD hh:mm:ss"
+	_TIME_FMT_NOBLANK,	// no blank format "YYYY-MM-DD_hh:mm:ss"
+	_TIME_FMT_COMPACT	// narrow format "YYYYMMDDhhmmss"
 };
 
 
-// 日期的字符串格式类型
+// Format type of date string
 enum EDateFmtType
 {
-	_DATE_FMT_STD,		// 标准格式："YYYY-MM-DD"
-	_DATE_FMT_COMPACT	// 紧凑格式："YYYYMMDD"
+	_DATE_FMT_STD,		// standard format "YYYY-MM-DD"
+	_DATE_FMT_COMPACT	// narrow format "YYYYMMDD"
 };
 
 
+// CLASS
+//	TimeFmt - time format convertor 
+//
+// DESCRIPTION
+//	This class is used for converting between timestamp in integer and time string in some string format
+//
 class TimeFmt
 {
 private:
-	// 构造函数 & 析构函数
+	// Construction & Destruction
 	TimeFmt();
 	virtual ~TimeFmt();
 
 public:
-	// 函数名：CurTimeStamp
-	// 说明：获取当前时间戳
-	// 返回值：32位的时间戳
+	// NAME
+	//	CurTimeStamp - get current timestamp which is accurate to second
+	//
+	// RETURN
+	//	current timestamp in 32 bits integer
 	static uint32_t CurTimeStamp();
 
-	// 函数名：CurTime_asStr
-	// 说明：获取当前时间（精确到秒），并且以字符串形式返回
-	// 参数：
-	//	[IN] eOutFmt - 输出的时间字符串的格式
-	// 返回值：表示当前时间的字符串
+	// NAME
+	//	CurTime_asStr - get current timestamp which is accurate to second, and convert it to string format
+	//
+	// DESCRIPTION
+	//	eOutFmt: format type of time string
+	//
+	// RETURN
+	//	time in string format
 	static string CurTime_asStr(const ETimeFmtType eOutFmt = _TIME_FMT_STD);
 
-	// 函数名：TimeConv_Uint32ToStr
-	// 说明：将32位的时间戳转换成字符串
-	// 参数：
-	//	[IN] unTimeStamp - 输入的时间戳
-	//	[IN] eOutFmt - 输出的时间字符串的格式
-	// 返回值：表示时间的字符串
+	// NAME
+	//	TimeConv_Uint32ToStr - convert timestamp to string format
+	// 
+	// DESCRIPTION
+	//	unTimeStamp: timestamp in 32 bits integer
+	//	eOutFmt: format type of time string
+	//
+	// RETURN
+	//	time in string format
 	static string TimeConv_Uint32ToStr(const uint32_t unTimeStamp, const ETimeFmtType eOutFmt = _TIME_FMT_STD);
 	
-	// 函数名：TimeConv_StrToUint32
-	// 说明：将字符串格式的时间转换成32位的时间戳
-	// 参数：
-	//	[IN] sTime - 输入的时间字符串
-	//	[IN] eInFmt - 输入的时间字符串的格式
-	// 返回值：32位时间戳
+	// NAME
+	//	TimeConv_StrToUint32 - convert time string to timestamp
+	//
+	// DESCRIPTION
+	//	sTime: time string
+	//	eInFmt: format type of time string
+	//
+	// RETURN
+	//	timestamp in 32 bits integer
 	static uint32_t TimeConv_StrToUint32(const char* sTime, const ETimeFmtType eInFmt = _TIME_FMT_STD);
 
-	// 函数名：DateConv_Uint32ToStr
-	// 说明：将32位日期转换成字符串
-	// 参数：
-	//	[IN] unTimeStamp - 输入的时间戳
-	//	[IN] eOutFmt - 输出的日期字符串的格式
-	// 返回值：字符串格式的日期，输出格式：YYYY-MM-DD
+	// NAME
+	//	DateConv_Uint32ToStr - convert timestamp to date format
+	// 
+	// DESCRIPTION
+	//	unTimeStamp: timestamp in 32 bits integer
+	//	eOutFmt: format type of time string
+	// 
+	// RETURN 
+	//	date string	
 	static string DateConv_Uint32ToStr(const uint32_t unTimeStamp, const EDateFmtType eOutFmt = _DATE_FMT_STD);
 	
-	// 函数名：DateConv_StrToUint32
-	// 说明：将字符串格式的日期转换成32位的时间戳
-	// 参数：
-	//	[IN] sDate - 输入的日期字符串，格式：YYYY-MM-DD
-	// 返回值：32位时间戳
+	// NAME
+	//	DateConv_StrToUint32 - convert date string to timestamp
+	// 
+	// DESCRIPTION
+	//	sDate: date string
+	//
+	// RETURN 
+	//	timestamp in 32 bits integer
 	static uint32_t DateConv_StrToUint32(const char* sDate);
 };
 

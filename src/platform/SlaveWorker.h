@@ -28,6 +28,8 @@ public:
 
 	void WorkCore(Json::Value& jsonReq, Json::Value& jsonResp); 
 
+	void Work_RecvBinaryPatt(const char* bitStream, const int32_t nLen, Json::Value& jsonResp); 
+
 private:
 	// 处理"detect"请求
 	//

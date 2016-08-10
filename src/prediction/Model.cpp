@@ -1,6 +1,8 @@
 #include "Model.h"
 #include "Model_Perceptron.h"
+#include "Model_FM.h"
 #include "Model_MLP.h"
+#include "Model_FMSNN.h"
 using namespace metis_pred; 
 
 
@@ -30,10 +32,20 @@ Model* Model::LoadModel(const char* sModelFile)
 		return p_model; 
 	
 	delete p_model;	
+	p_model = new Model_FM(); 
+	if(p_model->Load(sModelFile))
+		return p_model; 
+	
+	delete p_model;	
 	p_model = new Model_MLP(); 
 	if(p_model->Load(sModelFile))
 		return p_model; 
 	
+	delete p_model;	
+	p_model = new Model_FMSNN(); 
+	if(p_model->Load(sModelFile))
+		return p_model; 
+
 	delete p_model; 
 	return NULL; 
 }

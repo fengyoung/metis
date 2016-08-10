@@ -275,7 +275,7 @@ int32_t MLP::Save(const char* sFile)
 	TypeDefs::Print_PerceptronLearningParamsT(ofs, m_paramsLearning); 
 	ofs<<endl; 
 	
-	// save architecture parameters of RBM
+	// save architecture parameters of MLP 
 	ofs<<"@architecture_params"<<endl; 
 	TypeDefs::Print_MLPParamsT(ofs, m_paramsMLP); 
 	ofs<<endl; 
@@ -298,8 +298,6 @@ int32_t MLP::Save(const char* sFile)
 
 int32_t MLP::Load(const char* sFile)
 {
-	Release();
-
 	ifstream ifs(sFile);  
 	if(!ifs.is_open())
 		return _METIS_NN_ERROR_FILE_OPEN;
@@ -359,6 +357,97 @@ MLPLearningParamsT MLP::GetLearningParams()
 MLPParamsT MLP::GetArchParams()
 {
 	return m_paramsMLP; 
+}
+
+
+bool MLP::SetByModelString(const char* sModelStr)
+{
+	if(!sModelStr)
+		return false; 
+
+	StringArray array(sModelStr, "|"); 
+	if(array.GetString(0) != "mlpnn")	
+		return false; 	
+	if(array.Count() < 4)
+		return false; 
+
+	Release(); 
+	int32_t idx, hl = 0; 
+
+	for(int32_t i = 1; i < array.Count(); i++)
+	{
+		StringArray ar(array.GetString(i).c_str(), ":"); 
+		if(ar.GetString(0) == "@ap")
+		{
+			if(!TypeDefs::FromString_MLPParamsT(m_paramsMLP, ar.GetString(1).c_str()))
+				return false; 
+			// create matrices
+			hl = (int32_t)m_paramsMLP.vtr_hidden.size(); 
+			m_whs = new Matrix[hl]; 
+		}
+		else if(ar.GetString(0).find("@wh_") == 0)
+		{
+			StringArray ar_idx(ar.GetString(0).c_str(), "_"); 
+			sscanf(ar_idx.GetString(1).c_str(), "%d", &idx); 
+			if(idx >= hl)
+				continue; 
+			//if(idx == 0)
+			//	m_whs[idx].Create(m_paramsMLP.input, m_paramsMLP.vtr_hidden[idx]); 	
+			//else	
+			//	m_whs[idx].Create(m_paramsMLP.vtr_hidden[idx-1], m_paramsMLP.vtr_hidden[idx]); 	
+			if(!m_whs[idx].FromString(ar.GetString(1).c_str()))
+				return false; 
+		}
+		else if(ar.GetString(0) == "@wo")
+		{
+			//m_wo.Create(m_paramsMLP.vtr_hidden[hl-1], m_paramsMLP.output); 
+			if(!m_wo.FromString(ar.GetString(1).c_str()))
+				return false; 	
+		}
+	}
+
+	return true; 
+}
+
+
+string MLP::ConvToModelString()
+{
+	int32_t hl = (int32_t)m_paramsMLP.vtr_hidden.size();    // number of hidden layers	
+	char stmp[32];
+
+	string str("mlpnn");
+	str += "|@ap:"; 
+	str += TypeDefs::ToString_MLPParamsT(m_paramsMLP); 
+
+	for(int32_t h = 0; h < hl; h++) 	
+	{
+		sprintf(stmp, "|@wh_%d:", h); 
+		str += stmp; 	
+		str += m_whs[h].ToString(); 
+	}
+	str += "|@wo:";
+	str += m_wo.ToString(); 
+
+	return str; 
+}
+
+
+bool MLP::CombineWith(MLP& mlp_nn, const double w0, const double w1)
+{
+	if(!TypeDefs::IsEqual_MLPParamsT(m_paramsMLP, mlp_nn.GetArchParams()))
+		return false; 
+
+	int32_t hl = (int32_t)m_paramsMLP.vtr_hidden.size();    // number of hidden layers	
+	for(int32_t h = 0; h < hl; h++) 
+	{
+		if(!m_whs[h].CombineWith(mlp_nn.m_whs[h], w0, w1))
+			return false; 	
+	}
+		
+	if(!m_wo.CombineWith(mlp_nn.m_wo, w0, w1))
+		return false; 
+
+	return true; 
 }
 
 
@@ -662,94 +751,6 @@ pair<double, double> MLP::Validation(vector<Pattern*>& vtrPatts, const int32_t n
 	return pair<double,double>(pr, rmse); 
 }
 
-bool MLP::SetByModelString(const char* sStr)
-{
-	if(!sStr)
-		return false; 
 
-	StringArray array(sStr, "|"); 
-	if(array.GetString(0) != "mlpnn")	
-		return false; 	
-	if(array.Count() < 4)
-		return false; 
-
-	Release(); 
-	int32_t idx, hl = 0; 
-
-	for(int32_t i = 1; i < array.Count(); i++)
-	{
-		StringArray ar(array.GetString(i).c_str(), ":"); 
-		if(ar.GetString(0) == "@ap")
-		{
-			if(!TypeDefs::FromString_MLPParamsT(m_paramsMLP, ar.GetString(1).c_str()))
-				return false; 
-			// create matrices
-			hl = (int32_t)m_paramsMLP.vtr_hidden.size(); 
-			m_whs = new Matrix[hl]; 
-		}
-		else if(ar.GetString(0).find("@wh_") == 0)
-		{
-			StringArray ar_idx(ar.GetString(0).c_str(), "_"); 
-			sscanf(ar_idx.GetString(1).c_str(), "%d", &idx); 
-			if(idx >= hl)
-				continue; 
-			if(idx == 0)
-				m_whs[idx].Create(m_paramsMLP.input, m_paramsMLP.vtr_hidden[idx]); 	
-			else	
-				m_whs[idx].Create(m_paramsMLP.vtr_hidden[idx-1], m_paramsMLP.vtr_hidden[idx]); 	
-			if(!m_whs[idx].FromString(ar.GetString(1).c_str()))
-				return false; 
-		}
-		else if(ar.GetString(0) == "@wo")
-		{
-			m_wo.Create(m_paramsMLP.vtr_hidden[hl-1], m_paramsMLP.output); 
-			if(!m_wo.FromString(ar.GetString(1).c_str()))
-				return false; 	
-		}
-	}
-
-	return true; 
-}
-
-
-string MLP::ConvToModelString()
-{
-	int32_t hl = (int32_t)m_paramsMLP.vtr_hidden.size();    // number of hidden layers	
-	char stmp[32];
-
-	string str("mlpnn");
-	str += "|@ap:"; 
-	str += TypeDefs::ToString_MLPParamsT(m_paramsMLP); 
-
-	for(int32_t h = 0; h < hl; h++) 	
-	{
-		sprintf(stmp, "|@wh_%d:", h); 
-		str += stmp; 	
-		str += m_whs[h].ToString(); 
-	}
-	str += "|@wo:";
-	str += m_wo.ToString(); 
-
-	return str; 
-}
-
-
-bool MLP::CombineWith(MLP& mlp_nn, const double w0, const double w1)
-{
-	if(!TypeDefs::IsEqual_MLPParamsT(m_paramsMLP, mlp_nn.GetArchParams()))
-		return false; 
-
-	int32_t hl = (int32_t)m_paramsMLP.vtr_hidden.size();    // number of hidden layers	
-	for(int32_t h = 0; h < hl; h++) 
-	{
-		if(!m_whs[h].CombineWith(mlp_nn.m_whs[h], w0, w1))
-			return false; 	
-	}
-		
-	if(!m_wo.CombineWith(mlp_nn.m_wo, w0, w1))
-		return false; 
-
-	return true; 
-}
 
 

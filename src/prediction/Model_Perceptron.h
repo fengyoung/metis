@@ -30,7 +30,6 @@ public:
 public: 
 	PerceptronParamsT m_paramsPerceptron;   // architecture parameters of perceptron
 	Matrix m_wo;        // transform matrix
-	Matrix m_bn;        // n * 2 matrix, batch normalization matrix (average & std-deviation)
 };
 
 }

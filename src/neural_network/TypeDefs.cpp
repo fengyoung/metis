@@ -300,7 +300,7 @@ string TypeDefs::ToString_MLPParamsT(const MLPParamsT mlpParamsT)
 {
 	char stmp[128];
 	sprintf(stmp, "%d,%d,%s,%s", 
-			mlpParamsT.input, 	
+			mlpParamsT.input - 1, 	
 			mlpParamsT.output, 	
 			ActName(mlpParamsT.act_hidden).c_str(), 
 			ActName(mlpParamsT.act_output).c_str()); 
@@ -320,6 +320,7 @@ bool TypeDefs::FromString_MLPParamsT(MLPParamsT& mlpParamsT, const char* sStr)
 	if(ar.Count() < 5)
 		return false; 
 	sscanf(ar.GetString(0).c_str(), "%d", &(mlpParamsT.input)); 
+	mlpParamsT.input += 1; 	// add 1 for bias node 
 	sscanf(ar.GetString(1).c_str(), "%d", &(mlpParamsT.output)); 
 	mlpParamsT.act_hidden = ActType(ar.GetString(2).c_str());
 	mlpParamsT.act_output = ActType(ar.GetString(3).c_str());
@@ -353,3 +354,215 @@ bool TypeDefs::IsEqual_MLPParamsT(const MLPParamsT mlpParamsT_1, const MLPParams
 	return true; 
 }
 
+	
+void TypeDefs::Print_FMParamsT(ostream& os, const FMParamsT fmParamsT)
+{
+	os<<"Input:"<<fmParamsT.input-1<<endl; 
+	os<<"Output:"<<fmParamsT.output<<endl; 
+	os<<"FM_K:"<<fmParamsT.fm_k<<endl; 
+	os<<"Activation:"<<ActName(fmParamsT.act_output)<<endl; 
+}
+
+
+bool TypeDefs::Read_FMParamsT(FMParamsT& fmParamsT, istream& is)
+{
+	int32_t cnt = 0;
+	string str; 
+	while(cnt < 4)
+	{
+		std::getline(is, str); 
+		StringArray ar(str.c_str(), ":"); 
+		if(ar.Count() != 2) 
+			return false; 
+		if(ar.GetString(0) == "Input")
+		{
+			sscanf(ar.GetString(1).c_str(), "%d", &(fmParamsT.input));
+			fmParamsT.input += 1; // add 1 for bias nodes
+		}
+		else if(ar.GetString(0) == "Output")
+			sscanf(ar.GetString(1).c_str(), "%d", &(fmParamsT.output));
+		else if(ar.GetString(0) == "FM_K")
+			sscanf(ar.GetString(1).c_str(), "%d", &(fmParamsT.fm_k));
+		else if(ar.GetString(0) == "Activation")
+			fmParamsT.act_output = ActType(ar.GetString(1).c_str());
+		else
+			return false;
+		cnt++; 
+	}
+	return true; 
+}
+
+ 
+string TypeDefs::ToString_FMParamsT(const FMParamsT fmParamsT)
+{
+	char stmp[128];
+	sprintf(stmp, "%d,%d,%d,%s", 
+			fmParamsT.input - 1, 
+			fmParamsT.output, 
+			fmParamsT.fm_k, 
+			ActName(fmParamsT.act_output).c_str()); 
+	return string(stmp); 
+}
+
+ 
+bool TypeDefs::FromString_FMParamsT(FMParamsT& fmParamsT, const char* sStr)
+{
+	StringArray ar(sStr, ","); 
+	if(ar.Count() != 4)
+		return false; 
+	sscanf(ar.GetString(0).c_str(), "%d", &(fmParamsT.input)); 
+	fmParamsT.input += 1; 
+	sscanf(ar.GetString(1).c_str(), "%d", &(fmParamsT.output)); 
+	sscanf(ar.GetString(2).c_str(), "%d", &(fmParamsT.fm_k)); 
+	fmParamsT.act_output = ActType(ar.GetString(3).c_str()); 
+	return true; 
+}
+
+
+bool TypeDefs::IsEqual_FMParamsT(const FMParamsT fmParamsT_1, const FMParamsT fmParamsT_2)
+{
+	if(fmParamsT_1.input != fmParamsT_2.input || 
+		fmParamsT_1.output != fmParamsT_2.output || 
+		fmParamsT_1.fm_k != fmParamsT_2.fm_k || 
+		fmParamsT_1.act_output != fmParamsT_2.act_output)
+	{
+		return false; 
+	}
+	return true; 
+}
+
+
+void TypeDefs::Print_FMSNNParamsT(ostream& os, const FMSNNParamsT fnnParamsT)
+{
+	os<<"Input:"<<fnnParamsT.input-1<<endl; 
+	os<<"Output:"<<fnnParamsT.output<<endl; 
+	os<<"FMInter:"<<fnnParamsT.fm_inter<<endl; 
+	os<<"FM_K:"<<fnnParamsT.fm_k<<endl; 
+	for(size_t i = 0; i < fnnParamsT.vtr_hidden.size(); i++) 
+	{
+		if(i == 0)
+			os<<"Hiddens:"<<fnnParamsT.vtr_hidden[i]; 
+		else
+			os<<","<<fnnParamsT.vtr_hidden[i]; 
+	}
+	os<<endl;
+	os<<"ActFMLayer:"<<ActName(fnnParamsT.act_fm_layer)<<endl; 
+	os<<"ActHidden:"<<ActName(fnnParamsT.act_hidden)<<endl; 
+	os<<"ActOutput:"<<ActName(fnnParamsT.act_output)<<endl; 
+}
+
+
+bool TypeDefs::Read_FMSNNParamsT(FMSNNParamsT& fnnParamsT, istream& is)
+{
+	int32_t cnt = 0, hidden;
+	string str;
+	while(cnt < 8)
+	{
+		std::getline(is, str); 
+		StringArray ar(str.c_str(), ":"); 
+		if(ar.Count() != 2) 
+			return false; 
+		if(ar.GetString(0) == "Input")
+		{
+			sscanf(ar.GetString(1).c_str(), "%d", &(fnnParamsT.input));
+			fnnParamsT.input += 1; // add 1 for bias nodes
+		}
+		else if(ar.GetString(0) == "Output")
+			sscanf(ar.GetString(1).c_str(), "%d", &(fnnParamsT.output));
+		else if(ar.GetString(0) == "FMInter")
+			sscanf(ar.GetString(1).c_str(), "%d", &(fnnParamsT.fm_inter));
+		else if(ar.GetString(0) == "FM_K")
+			sscanf(ar.GetString(1).c_str(), "%d", &(fnnParamsT.fm_k));
+		else if(ar.GetString(0) == "Hiddens")
+		{
+			fnnParamsT.vtr_hidden.clear(); 
+			StringArray array(ar.GetString(1).c_str(), ","); 
+			for(int32_t i = 0; i < array.Count(); i++) 
+			{
+				sscanf(array.GetString(i).c_str(), "%d", &hidden); 
+				fnnParamsT.vtr_hidden.push_back(hidden); 
+			}
+		}
+		else if(ar.GetString(0) == "ActFMLayer")
+			fnnParamsT.act_fm_layer = ActType(ar.GetString(1).c_str());
+		else if(ar.GetString(0) == "ActHidden")
+			fnnParamsT.act_hidden = ActType(ar.GetString(1).c_str());
+		else if(ar.GetString(0) == "ActOutput")
+			fnnParamsT.act_output = ActType(ar.GetString(1).c_str());
+		else
+			return false;
+		cnt++; 
+	}
+	return true; 
+}
+
+
+string TypeDefs::ToString_FMSNNParamsT(const FMSNNParamsT fnnParamsT)
+{
+	char stmp[128];
+	sprintf(stmp, "%d,%d,%d,%d,%s,%s,%s", 
+			fnnParamsT.input - 1, 	
+			fnnParamsT.output, 	
+			fnnParamsT.fm_inter, 	
+			fnnParamsT.fm_k, 	
+			ActName(fnnParamsT.act_fm_layer).c_str(), 
+			ActName(fnnParamsT.act_hidden).c_str(), 
+			ActName(fnnParamsT.act_output).c_str()); 
+	string str(stmp); 	
+	for(size_t i = 0; i < fnnParamsT.vtr_hidden.size(); i++) 
+	{
+		sprintf(stmp, ",%d", fnnParamsT.vtr_hidden[i]); 
+		str += stmp; 
+	}
+	return str; 
+}
+
+
+bool TypeDefs::FromString_FMSNNParamsT(FMSNNParamsT& fnnParamsT, const char* sStr)
+{
+	StringArray ar(sStr, ","); 
+	if(ar.Count() < 8)
+		return false; 
+	sscanf(ar.GetString(0).c_str(), "%d", &(fnnParamsT.input)); 
+	fnnParamsT.input += 1;	// add 1 for bias node 
+	sscanf(ar.GetString(1).c_str(), "%d", &(fnnParamsT.output)); 
+	sscanf(ar.GetString(2).c_str(), "%d", &(fnnParamsT.fm_inter)); 
+	sscanf(ar.GetString(3).c_str(), "%d", &(fnnParamsT.fm_k)); 
+	fnnParamsT.act_fm_layer = ActType(ar.GetString(4).c_str());
+	fnnParamsT.act_hidden = ActType(ar.GetString(5).c_str());
+	fnnParamsT.act_output = ActType(ar.GetString(6).c_str());
+	fnnParamsT.vtr_hidden.clear();
+	int32_t hidden; 
+	for(int32_t i = 7; i < ar.Count(); i++) 
+	{
+		sscanf(ar.GetString(i).c_str(), "%d", &hidden); 
+		fnnParamsT.vtr_hidden.push_back(hidden); 
+	}
+	return true; 
+} 
+
+
+bool TypeDefs::IsEqual_FMSNNParamsT(const FMSNNParamsT fnnParamsT_1, const FMSNNParamsT fnnParamsT_2)
+{
+	if(fnnParamsT_1.input != fnnParamsT_2.input || 
+			fnnParamsT_1.output != fnnParamsT_2.output || 
+			fnnParamsT_1.fm_inter != fnnParamsT_2.fm_inter || 
+			fnnParamsT_1.fm_k != fnnParamsT_2.fm_k || 
+			fnnParamsT_1.act_fm_layer != fnnParamsT_2.act_fm_layer || 
+			fnnParamsT_1.act_hidden != fnnParamsT_2.act_hidden || 
+			fnnParamsT_1.act_output != fnnParamsT_2.act_output) 
+	{
+		return false; 
+	}
+	if(fnnParamsT_1.vtr_hidden.size() != fnnParamsT_2.vtr_hidden.size())
+		return false; 
+	for(size_t i = 0; i < fnnParamsT_1.vtr_hidden.size(); i++) 
+	{
+		if(fnnParamsT_1.vtr_hidden[i] != fnnParamsT_2.vtr_hidden[i])
+			return false; 
+	}
+	return true; 
+}
+
+
+ 

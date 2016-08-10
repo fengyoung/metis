@@ -7,8 +7,8 @@ using namespace std;
 #include <stdlib.h>
 #include <sys/time.h>
 
-
 vector<int32_t> Random::m_vtrInts;
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Construction & Destruction 

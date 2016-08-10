@@ -1,6 +1,8 @@
 #include "Timer.h"
 using namespace metis_uti;
 
+///////////////////////////////////////////////////////////////////////////////////
+// Construction & Destruction
 
 Timer::Timer()
 {
@@ -20,6 +22,9 @@ Timer::~Timer()
 {
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////
+// Operations
 
 Timer& Timer::operator = (const Timer& timer)
 {
@@ -114,6 +119,7 @@ float Timer::Get_asSec(const uint32_t seg)
 		return -1.0;
 	return (float)(m_vtrSeg[seg].first) + (float)m_vtrSeg[seg].second / 1000.0 / 1000.0;
 }
+
 
 int32_t Timer::GetTotal_asUSec()
 {

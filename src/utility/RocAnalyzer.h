@@ -1,3 +1,14 @@
+// RocAnalyzer.h
+//
+// Analyzer in ROC method
+//
+// AUTHOR
+//	fengyoung (fengyoung82@sina.cn)
+// 
+// HISTORY
+//	v1.0 2016-03-14
+//
+
 #ifndef _METIS_UTILITY_ROC_ANALYZER_H
 #define _METIS_UTILITY_ROC_ANALYZER_H
 
@@ -41,15 +52,19 @@ enum EPNDetType
 //  +------+---+---------------------+---------------------+
 class PNDetTable
 {
-public: 
+public:
+	// Construction & Destruction 
 	PNDetTable(); 
 	PNDetTable(const PNDetTable& table); 
 	virtual ~PNDetTable();
 
+	// Clear current table
 	void Clear(); 
 
+	// Reload assignment
 	PNDetTable& operator = (const PNDetTable& table); 
 
+	// Get count of samples
 	int32_t SampleCnt(); 
 
 	// TP + FN
@@ -95,23 +110,56 @@ public:
 
 // CLASS
 //	RocAnalyzer - ROC(Receiver Operating Characteristic) analyser for classification 
+// 
+// DESCRIPTION
+//	RocAnalyzer supports ROC curve and AUC calculation 
+//
 class RocAnalyzer
 {
 public:
+	// Construction & Destruction
 	RocAnalyzer(const double dScoreFrom = 0.0, const double dScoreTo = 1.0); 
 	virtual ~RocAnalyzer();
 
+	// NAME
+	//	Clear - clear current analyzer 	
 	void Clear(); 
 
+	// NAME
+	//	Insert - intsert one predict result to current analyzer
+	//	
+	// DESCRIPTION
+	//	realLabel: real category label of the sample
+	//	dScore: predict score
 	void Insert(const ELabelType realLabel,  const double dScore); 
 
+	// NAME
+	//	Auc - calculate the AUC (Area Under the Curve) value
+	//
+	// RETURN
+	//	The AUC value
 	double Auc(); 
 
+	// NAME
+	//	RocCurve - get the ROC curve paraments
+	//
+	// DESCRIPTION
+	//	curve: out param, points of the curve
+	//	dStep: step of threshold 
 	void RocCurve(vector<pair<double, PNDetTable> >& curve, const double dStep = 0.01); 
 
+	// NAME
+	//	Count - get the sample count of positive or negative samples
+	//
+	// DESCRIPTION
+	//	eType - _POSITIVE or _NEGATIVE
+	//
+	// RETURN
+	//	Samples count
 	int32_t Count(const ELabelType eType); 
 
 private:
+	// Compare two pair variables according to their score values (scondary value) 
 	static bool Cmp(pair<ELabelType,double> a, pair<ELabelType, double> b); 
 
 private: 

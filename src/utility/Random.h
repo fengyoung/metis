@@ -1,3 +1,14 @@
+// Random.h
+//
+// Definition of class Random
+//
+// AUTHOR
+//	fengyoung (fengyoung82@sina.cn)
+// 
+// HISTORY
+//	v1.0 2016-03-14
+//
+
 #ifndef _METIS_UTILITY_RANDOM_H 
 #define _METIS_UTILITY_RANDOM_H 
 
@@ -8,7 +19,7 @@ using namespace std;
 
 namespace metis_uti
 {
-	
+
 // CLASS
 //	Random - random value generator
 // 
@@ -18,6 +29,7 @@ namespace metis_uti
 class Random
 {
 private: 
+	// Construction & Destruction
 	Random(); 
 	virtual ~Random(); 
 	
@@ -58,6 +70,7 @@ private:
 	// generate random integer value
 	static int32_t RandInt(); 
 
+private: 
 	static vector<int32_t> m_vtrInts;
 };
 

@@ -120,6 +120,58 @@ bool Pattern::FromString(const char* sStr)
 }
 
 
+int32_t Pattern::ToStream(char* bitStream)
+{
+	int32_t off = 0; 
+	
+	memcpy(bitStream + off, &m_nXCnt, sizeof(int32_t)); 
+	off += sizeof(int32_t);
+	
+	memcpy(bitStream + off, &m_nYCnt, sizeof(int32_t)); 
+	off += sizeof(int32_t);
+
+	memcpy(bitStream + off, m_x, m_nXCnt * sizeof(double)); 
+	off += m_nXCnt * sizeof(double);
+
+	memcpy(bitStream + off, m_y, m_nYCnt * sizeof(double)); 
+	off += m_nYCnt * sizeof(double);
+
+	return off; 
+}
+	
+
+bool Pattern::FromStream(const char* bitStream, const int32_t nLen)
+{
+	if(!bitStream)
+		return false; 
+	if(nLen < sizeof(int32_t) * 2)
+		return false; 
+
+	int32_t off = 0; 
+	m_nXCnt = *((int32_t*)(bitStream + off)); 
+	off += sizeof(int32_t); 
+	m_nYCnt = *((int32_t*)(bitStream + off)); 
+	off += sizeof(int32_t); 
+
+	if(nLen < sizeof(int32_t) * 2 + (m_nXCnt + m_nYCnt) * sizeof(double))
+		return false; 
+
+	if(m_x)
+		delete m_x; 
+	m_x = new double[m_nXCnt];
+	memcpy(m_x, bitStream + off, m_nXCnt * sizeof(double)); 
+	off += m_nXCnt * sizeof(double); 
+
+	if(m_y)
+		delete m_y; 
+	m_y = new double[m_nYCnt];
+	memcpy(m_y, bitStream + off, m_nYCnt * sizeof(double)); 
+	off += m_nYCnt * sizeof(double); 
+
+	return true; 
+}
+
+
 bool Pattern::LoadPartterns(vector<Pattern*>& vtrPatts, const char* sFile, const bool bSkipHeader)
 {
 	ifstream ifs(sFile);

@@ -16,23 +16,31 @@ OBJS += $(SRC_NN_PATH)/Pattern.o
 OBJS += $(SRC_NN_PATH)/Matrix.o
 OBJS += $(SRC_NN_PATH)/Activation.o
 OBJS += $(SRC_NN_PATH)/Perceptron.o
+OBJS += $(SRC_NN_PATH)/FM.o
 OBJS += $(SRC_NN_PATH)/MLP.o
+OBJS += $(SRC_NN_PATH)/FMSNN.o
 OBJS += $(SRC_PREDICTION_PATH)/Model.o
 OBJS += $(SRC_PREDICTION_PATH)/Model_Perceptron.o
+OBJS += $(SRC_PREDICTION_PATH)/Model_FM.o
 OBJS += $(SRC_PREDICTION_PATH)/Model_MLP.o
+OBJS += $(SRC_PREDICTION_PATH)/Model_FMSNN.o
 
 PLAT_OBJS = $(SRC_PLATFORM_PATH)/Ether.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/JsonTransf.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/ServConf.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/ThreadRWLock.o
-PLAT_OBJS += $(SRC_PLATFORM_PATH)/SubMLP.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/SubPerceptron.o
+PLAT_OBJS += $(SRC_PLATFORM_PATH)/SubFM.o
+PLAT_OBJS += $(SRC_PLATFORM_PATH)/SubMLP.o
+PLAT_OBJS += $(SRC_PLATFORM_PATH)/SubFMSNN.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/Worker.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/SlaveWorker.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/SlaveTrainer.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/MasterTrainer.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/MasterTrainer_Perceptron.o
+PLAT_OBJS += $(SRC_PLATFORM_PATH)/MasterTrainer_FM.o
 PLAT_OBJS += $(SRC_PLATFORM_PATH)/MasterTrainer_MLP.o
+PLAT_OBJS += $(SRC_PLATFORM_PATH)/MasterTrainer_FMSNN.o
 
 
 LIB_OUT_PATH = ../lib/
@@ -42,7 +50,9 @@ INC_OUT_PATH = ../include/
 SRC_EXAMPLE_PATH = ./example/
 BIN_PATH = ../bin/
 EXAMPLES = $(BIN_PATH)/perceptron_example
+EXAMPLES += $(BIN_PATH)/fm_example
 EXAMPLES += $(BIN_PATH)/mlp_example
+EXAMPLES += $(BIN_PATH)/fmsnn_example
 EXAMPLES += $(BIN_PATH)/predict_example 
 
 PLAT_BIN = $(BIN_PATH)/metis_slave
@@ -67,8 +77,14 @@ $(LIB_OUT): $(OBJS)
 	
 $(BIN_PATH)/perceptron_example: $(SRC_EXAMPLE_PATH)/perceptron_example.o
 	$(CXX) $(CFLAGS) -o $@ $< -L$(LIB_OUT_PATH) -lmetis
+	
+$(BIN_PATH)/fm_example: $(SRC_EXAMPLE_PATH)/fm_example.o
+	$(CXX) $(CFLAGS) -o $@ $< -L$(LIB_OUT_PATH) -lmetis
 
 $(BIN_PATH)/mlp_example: $(SRC_EXAMPLE_PATH)/mlp_example.o
+	$(CXX) $(CFLAGS) -o $@ $< -L$(LIB_OUT_PATH) -lmetis
+
+$(BIN_PATH)/fmsnn_example: $(SRC_EXAMPLE_PATH)/fmsnn_example.o
 	$(CXX) $(CFLAGS) -o $@ $< -L$(LIB_OUT_PATH) -lmetis
 
 $(BIN_PATH)/predict_example: $(SRC_EXAMPLE_PATH)/predict_example.o

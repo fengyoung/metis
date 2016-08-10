@@ -13,7 +13,6 @@ namespace metis_plat
 class Ether
 {
 private:
-	// 构造函数 & 析构函数
 	Ether(); 
 	virtual ~Ether(); 
 

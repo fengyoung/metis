@@ -62,6 +62,39 @@ void SlaveWorker::WorkCore(Json::Value& jsonReq, Json::Value& jsonResp)
 }
 
 
+void SlaveWorker::Work_RecvBinaryPatt(const char* bitStream, const int32_t nLen, Json::Value& jsonResp)
+{
+	bool is_updating, flag; 
+	
+	m_rwLock.WrLock(); 
+	is_updating = m_bIsUpdating;
+	if(!is_updating)
+		flag = m_slaveTrainer.PushPatt_inStream(bitStream, nLen); 
+	m_rwLock.Unlock(); 
+
+	if(is_updating)
+	{
+		jsonResp["ret"] = _METIS_PLAT_ISUPDATING; 
+		jsonResp["msg"] = "model updating";
+	}
+	else
+	{
+		if(flag)
+		{
+			jsonResp["ret"] = _METIS_PLAT_SUCCESS;
+			jsonResp["msg"] = "ok";
+			LOG_DEBUG("Receive pattern from Master"); 
+		}
+		else
+		{
+			jsonResp["ret"] = _METIS_PLAT_PUSHPATT_FAIL;
+			jsonResp["msg"] = "push fail"; 
+			LOG_ERROR("Failed to push pattern"); 
+		}
+	}
+}
+
+
 // 处理"detect"请求
 void SlaveWorker::Work_Detect(Json::Value& jsonResp)
 {
@@ -79,7 +112,7 @@ void SlaveWorker::Work_PushPatt(Json::Value& jsonReqBody, Json::Value& jsonResp)
 	m_rwLock.WrLock(); 
 	is_updating = m_bIsUpdating;
 	if(!is_updating)
-		flag = m_slaveTrainer.PushPatt(jsonReqBody["patt"].asString().c_str()); 
+		flag = m_slaveTrainer.PushPatt_inString(jsonReqBody["patt"].asString().c_str()); 
 	m_rwLock.Unlock(); 
 
 	if(is_updating)
@@ -211,6 +244,8 @@ void SlaveWorker::Work_GetModel(Json::Value& jsonResp)
 			LOG_ERROR("Faield to get model"); 
 		}
 	}
+
+	LOG_DEBUG("GETMODEL: %s", JsonTransf::JsonCppToString(jsonResp).c_str()); 
 }
 
 

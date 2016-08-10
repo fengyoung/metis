@@ -200,12 +200,13 @@ bool Matrix::FromString(const char* sStr)
 	sscanf(ar.GetString(1).c_str(), "%d", &c); 
 	if(ar.Count() < 2 + r * c)
 		return false; 
-	
 	Create(r, c);
 	for(int32_t i = 0; i < r; i++) 
 	{
-		for(int32_t j = 0; j < c; j++) 
+		for(int32_t j = 0; j < c; j++)
+		{
 			sscanf(ar.GetString(2 + i * c + j).c_str(), "%lf", &(m_data[i][j])); 
+		}
 	}
 
 	return true; 

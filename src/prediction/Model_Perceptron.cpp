@@ -16,6 +16,7 @@ Model_Perceptron::Model_Perceptron() : Model(_MODEL_PERCEPTRON)
 
 Model_Perceptron::~Model_Perceptron()
 {
+	Release(); 
 }
 
 
@@ -60,15 +61,6 @@ bool Model_Perceptron::Load(const char* sModelFile)
 				return false; 
 			}
 		}
-		else if(str == "@batch_normalization")
-		{
-			m_bn.Create(m_paramsPerceptron.input - 1, 2); 
-			if(!Matrix::Read_Matrix(m_bn, ifs))
-			{
-				ifs.close(); 
-				return false; 
-			}
-		}
 	}
 
 	ifs.close(); 
@@ -98,14 +90,6 @@ bool Model_Perceptron::Save(const char* sModelFile)
 	Matrix::Print_Matrix(ofs, m_wo);
 	ofs<<endl; 
 
-	// save batch_normalization matrix
-	if(!m_bn.IsNull())
-	{
-		ofs<<"@batch_normalization"<<endl;
-		Matrix::Print_Matrix(ofs, m_bn);
-		ofs<<endl; 
-	}
-
 	ofs.close(); 
 	return true; 
 }
@@ -118,11 +102,6 @@ string Model_Perceptron::ToString()
 	str += TypeDefs::ToString_PerceptronParamsT(m_paramsPerceptron);  
 	str += "|@w:"; 
 	str += m_wo.ToString(); 
-	if(!m_bn.IsNull())	
-	{
-		str += "|@bn:"; 
-		str += m_bn.ToString(); 
-	}
 	return str; 
 }
 
@@ -153,11 +132,6 @@ bool Model_Perceptron::FromString(const char* sStr)
 			if(!m_wo.FromString(ar.GetString(1).c_str()))
 				return false; 
 		}
-		else if(ar.GetString(0) == "@bn")
-		{
-			if(!m_bn.FromString(ar.GetString(1).c_str()))
-				return false; 
-		}
 	}
 
 	return true; 
@@ -167,7 +141,6 @@ bool Model_Perceptron::FromString(const char* sStr)
 void Model_Perceptron::Release()
 {
 	m_wo.Release(); 
-	m_bn.Release(); 
 }
 
 
@@ -184,10 +157,7 @@ double Model_Perceptron::Predict(vector<pair<int32_t,double> >& vtrFeat, const i
 		i = vtrFeat[k].first; 
 		if(i >= m_paramsPerceptron.input - 1)
 			continue; 
-		if(m_bn.IsNull())
-			sum += vtrFeat[k].second * m_wo[i][nTarget]; 
-		else
-			sum += (vtrFeat[k].second - m_bn[i][0]) / m_bn[i][1] * m_wo[i][nTarget]; 
+		sum += vtrFeat[k].second * m_wo[i][nTarget]; 
 	}	
 	sum += m_wo[m_paramsPerceptron.input - 1][nTarget];	// for bias
 
@@ -207,12 +177,6 @@ bool Model_Perceptron::CombineWith(Model* pModel, const double w0, const double 
 
 	if(!m_wo.CombineWith(p_model->m_wo, w0, w1))
 		return false;
-	
-	if(!m_bn.IsNull() && !p_model->m_bn.IsNull())
-	{
-		if(m_bn.CombineWith(p_model->m_bn, w0, w1))
-			return false; 
-	}
 
 	return true; 
 }

@@ -1,3 +1,27 @@
+// Activation.h
+//
+// Definition of activation functions and their derivations
+//
+// There are 5 types of activations: Linear, Sigmoid, Tanh, ReLU and Softmax
+// +----------+-------------------------------------------------+-----------------------+
+// | Linear   | y(x) = x                                        |  y'(x) = 1            | 
+// +----------+-------------------------------------------------+-----------------------+
+// | Sigmoid  | y(x) = 1 / [1 + exp(-x)]                        |  y'(x) = y * (1 - y)  |
+// +----------+-------------------------------------------------+-----------------------+
+// | Tanh     | y(x) = [exp(x) - exp(-x)] / [exp(x) + exp(-x)]  |  y'(x) = 1 - y^2      |
+// +----------+-------------------------------------------------+-----------------------+
+// | ReLU     | y(x) = MAX(0, x)                                |  y'(x) = 0 or 1       |
+// +----------+-------------------------------------------------+-----------------------+
+// | Softmax  | y(xi) = exp(xi) / SUM(exp(xj))                  |  y'(x) = y * (1 - y)  |
+// +----------+-------------------------------------------------+-----------------------+
+//
+// AUTHOR
+//	fengyoung (fengyoung82@sina.cn)
+// 
+// HISTORY
+//	v1.0 2016-03-14
+//
+
 #ifndef _METIS_NN_MATRIX_ACTIVATION_H 
 #define _METIS_NN_MATRIX_ACTIVATION_H 
 
@@ -22,6 +46,7 @@ namespace metis_nn
 class Activation
 {
 private:
+	// Construction & Destruction
 	Activation(); 
 	virtual ~Activation(); 
 	
@@ -52,7 +77,7 @@ public:
 	static double Tanh(const double x); 
 	static double DTanh(const double y); 
 
-	// RelU & its derivation
+	// ReLU & its derivation
 	static double ReLU(const double x); 
 	static double DReLU(const double y); 
 

@@ -9,8 +9,8 @@ using namespace metis_nn;
 #include "ThreadRWLock.h"
 #include <stdint.h>
 
-#define _UPDATING_WAIT_MICRO_SEC	(1000*100)
-#define _DEFAULT_MAX_THREADS		12
+#define _UPDATING_WAIT_MICRO_SEC	(1000*500)
+#define _DEFAULT_MAX_THREADS		32
 
 namespace metis_plat
 {
@@ -46,7 +46,6 @@ public:
 	virtual void Train(const char* sOutModelFile) = 0; 
 
 protected:
-
 	// 与所有slave同步模型
 	bool SyncModel(); 	
 
@@ -55,7 +54,6 @@ protected:
 
 	// 从所有slave上收集更新后的模型数据
 	virtual bool CollectModel() = 0;  	
-
 
 protected: 
 
@@ -80,6 +78,7 @@ protected:
 
 	// pattern mapping 线程
 	static void* Thread_PattMapping(void* pParam);
+	static void* Thread_PattMapping_Binary(void* pParam);
 
 protected: 
 	vector<string> m_vtrSlaves;		// 可用的slave列表 

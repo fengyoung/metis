@@ -107,7 +107,7 @@ double Activation::Tanh(const double x)
 
 double Activation::DTanh(const double y)
 {
-	return (1 - y * y); 
+	return (1.0 - y * y); 
 }
 
 

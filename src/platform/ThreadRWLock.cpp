@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// ThreadRWLock.cpp : 线程读写锁ThreadRWLock的定义
-//
-// 版本：v1.0 - 2015.01.09 by 冯扬(fengyoung82@gmail.com) 
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
 #include "ThreadRWLock.h"
 using namespace metis_plat; 
 #include <string>
@@ -22,12 +14,10 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Construction & Destruction 
 
-// 构造函数 
 ThreadRWLock::ThreadRWLock()
 {
 	int rc = -1;
 
-	// 初始化
 	rc = pthread_rwlock_init(&_rw_lock, NULL); 
 	assert(rc == 0);
 
@@ -36,7 +26,6 @@ ThreadRWLock::ThreadRWLock()
 }
 
 
-// 析构函数 
 ThreadRWLock::~ThreadRWLock()
 {
 	int rc = -1;
@@ -51,7 +40,6 @@ ThreadRWLock::~ThreadRWLock()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Operations 
 
-// 加锁(读)
 void ThreadRWLock::RdLock() const
 {
 	int rc = pthread_rwlock_rdlock(&_rw_lock); 
@@ -62,7 +50,6 @@ void ThreadRWLock::RdLock() const
 }
 
 
-// 加锁(写)
 void ThreadRWLock::WrLock() const
 {
 	int rc = pthread_rwlock_wrlock(&_rw_lock); 
@@ -73,7 +60,6 @@ void ThreadRWLock::WrLock() const
 }
 
 
-//尝试锁(读)
 bool ThreadRWLock::TryRdLock() const
 {
 	int rc = pthread_rwlock_tryrdlock(&_rw_lock); 
@@ -85,7 +71,6 @@ bool ThreadRWLock::TryRdLock() const
 }
 
 
-//尝试锁(写)
 bool ThreadRWLock::TryWrLock() const
 {
 	int rc = pthread_rwlock_trywrlock(&_rw_lock); 
@@ -97,7 +82,6 @@ bool ThreadRWLock::TryWrLock() const
 }
 
 
-//解锁
 void ThreadRWLock::Unlock() const
 {
 	int rc = pthread_rwlock_unlock(&_rw_lock);

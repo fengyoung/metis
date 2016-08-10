@@ -13,7 +13,9 @@ namespace metis_pred
 enum ModelType
 {
 	_MODEL_PERCEPTRON,
-	_MODEL_MLP
+	_MODEL_FM,
+	_MODEL_MLP,
+	_MODEL_FMSNN
 };
 
 

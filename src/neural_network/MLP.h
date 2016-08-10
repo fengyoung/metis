@@ -15,7 +15,7 @@
 // (5) tanh is recommended for hidden layers to replace sigmoid 
 //
 // AUTHOR
-//	fengyoung (fengyoung82@sina.com)
+//	fengyoung (fengyoung82@sina.cn)
 // 
 // HISTORY
 //	v1.0 2016-03-14
@@ -46,7 +46,8 @@ namespace metis_nn
 //
 class MLP
 {
-public: 
+public:
+	// Construction & Destruction
 	MLP();
 	virtual ~MLP();
 
@@ -105,6 +106,13 @@ public:
 	
 	// Get architecture parameters 
 	MLPParamsT GetArchParams(); 
+
+	// Set current MLP by model string
+	bool SetByModelString(const char* sModelStr); 
+	// Convert current MLP to model string
+	string ConvToModelString(); 	
+	// Combine current MLP which another model
+	bool CombineWith(MLP& mlp_nn, const double w0, const double w1);
 
 	// NAME
 	//	FfBp_Step - feed forward and back propagate once
@@ -185,15 +193,6 @@ protected:
 	pair<double, double> Validation(vector<Pattern*>& vtrPatts, const int32_t nBackCnt);
 
 
-	////////////////////////////////////////////////////////////////////////////
-
-public: 	
-	bool SetByModelString(const char* sModelStr); 
-	string ConvToModelString(); 	
-	bool CombineWith(MLP& mlp_nn, const double w0, const double w1);
-
-
-	////////////////////////////////////////////////////////////////////////////
 public: 
 	// model variables
 	Matrix* m_whs;	// transform matrices of hidden layers

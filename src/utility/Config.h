@@ -1,3 +1,14 @@
+// Config.h
+//
+// Definition of class Config
+//
+// AUTHOR
+//	fengyoung (fengyoung82@sina.cn)
+// 
+// HISTORY
+//	v1.0 2016-03-14
+//
+
 #ifndef _METIS_UTILITY_CONFIG_H 
 #define _METIS_UTILITY_CONFIG_H
 
@@ -19,6 +30,7 @@ namespace metis_uti
 class Config
 {
 public: 
+	// Construction & Destruction
 	Config(); 
 	virtual ~Config(); 
 
@@ -70,6 +82,8 @@ public:
 private:
 	// ignore the space (blank, space, tab...) in the config string
 	void IgnoreSpace(string& str);	
+
+private: 
 	map<string,vector<string> > m_mapKeyToValues;   // Key->Values  
 };  
 

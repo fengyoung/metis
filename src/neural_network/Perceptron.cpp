@@ -20,7 +20,6 @@ Perceptron::Perceptron()
 {
 	m_ai = NULL; 
 	m_ao = NULL; 
-
 	m_do = NULL; 
 }
 
@@ -265,7 +264,7 @@ int32_t Perceptron::Save(const char* sFile)
 	TypeDefs::Print_PerceptronLearningParamsT(ofs, m_paramsLearning); 
 	ofs<<endl; 
 	
-	// save architecture parameters of RBM
+	// save architecture parameters of perceptron
 	ofs<<"@architecture_params"<<endl; 
 	TypeDefs::Print_PerceptronParamsT(ofs, m_paramsPerceptron); 
 	ofs<<endl; 
@@ -336,9 +335,59 @@ PerceptronParamsT Perceptron::GetArchParams()
 }
 
 
+bool Perceptron::SetByModelString(const char* sModelStr)
+{
+	if(!sModelStr)
+		return false;
+
+	StringArray array(sModelStr, "|"); 
+	if(array.GetString(0) != "perceptron")	
+		return false; 	
+	if(array.Count() < 3)
+		return false; 
+
+	Release(); 
+	
+	for(int32_t i = 1; i < array.Count(); i++) 
+	{
+		StringArray ar(array.GetString(i).c_str(), ":"); 
+		if(ar.GetString(0) == "@ap")
+		{
+			if(!TypeDefs::FromString_PerceptronParamsT(m_paramsPerceptron, ar.GetString(1).c_str()))
+				return false; 
+		}
+		else if(ar.GetString(0) == "@w")
+		{
+			if(!m_wo.FromString(ar.GetString(1).c_str()))
+				return false; 
+		}
+	}
+
+	return true; 
+}
+
+
+string Perceptron::ConvToModelString()
+{
+	string str("perceptron");
+	str += "|@ap:"; 
+	str += TypeDefs::ToString_PerceptronParamsT(m_paramsPerceptron);  
+	str += "|@w:"; 
+	str += m_wo.ToString(); 
+	return str; 
+}
+
+
+bool Perceptron::CombineWith(Perceptron& perc, const double w0, const double w1)
+{
+	if(!TypeDefs::IsEqual_PerceptronParamsT(m_paramsPerceptron, perc.GetArchParams()))
+		return false; 
+	return m_wo.CombineWith(perc.m_wo, w0, w1); 
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Internal Operations
-
 
 void Perceptron::Create()
 {
@@ -488,56 +537,6 @@ pair<double, double> Perceptron::Validation(vector<Pattern*>& vtrPatts, const in
 	return pair<double,double>(pr, rmse); 
 }
 
-
-bool Perceptron::SetByModelString(const char* sStr)
-{
-	if(!sStr)
-		return false;
-
-	StringArray array(sStr, "|"); 
-	if(array.GetString(0) != "perceptron")	
-		return false; 	
-	if(array.Count() < 3)
-		return false; 
-
-	Release(); 
-	
-	for(int32_t i = 1; i < array.Count(); i++) 
-	{
-		StringArray ar(array.GetString(i).c_str(), ":"); 
-		if(ar.GetString(0) == "@ap")
-		{
-			if(!TypeDefs::FromString_PerceptronParamsT(m_paramsPerceptron, ar.GetString(1).c_str()))
-				return false; 
-		}
-		else if(ar.GetString(0) == "@w")
-		{
-			if(!m_wo.FromString(ar.GetString(1).c_str()))
-				return false; 
-		}
-	}
-
-	return true; 
-}
-
-
-string Perceptron::ConvToModelString()
-{
-	string str("perceptron");
-	str += "|@ap:"; 
-	str += TypeDefs::ToString_PerceptronParamsT(m_paramsPerceptron);  
-	str += "|@w:"; 
-	str += m_wo.ToString(); 
-	return str; 
-}
-
-
-bool Perceptron::CombineWith(Perceptron& perc, const double w0, const double w1)
-{
-	if(!TypeDefs::IsEqual_PerceptronParamsT(m_paramsPerceptron, perc.GetArchParams()))
-		return false; 
-	return m_wo.CombineWith(perc.m_wo, w0, w1); 
-}
 
 
 

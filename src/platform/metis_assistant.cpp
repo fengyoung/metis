@@ -24,7 +24,7 @@ bool ReadSlaveList(vector<string>& vtrSlaves, const char* sSlaveListFile)
 			continue; 
 		if(str.at(0) == '#')
 			continue; 
-		if(Worker::Send(str.c_str(), "detect", json_req_body, json_resp))
+		if(Worker::SendCmd(str.c_str(), "detect", json_req_body, json_resp))
 			vtrSlaves.push_back(str); 
 	}
 	ifs.close(); 
@@ -39,7 +39,7 @@ void GetPattCnt(vector<string>& vtrSlaves)
 
 	for(int32_t i = 0; i < (int32_t)vtrSlaves.size(); i++)  
 	{
-		if(!Worker::Send(vtrSlaves[i].c_str(), "get_patt_cnt", json_req_body, json_resp))
+		if(!Worker::SendCmd(vtrSlaves[i].c_str(), "get_patt_cnt", json_req_body, json_resp))
 			continue; 
 		if(json_resp["ret"].asInt() == _METIS_PLAT_SUCCESS)
 			vtr_pattcnt.push_back(pair<string,int32_t>(vtrSlaves[i], json_resp["patts"].asInt()));
@@ -65,9 +65,9 @@ void GetStatus(vector<string>& vtrSlaves)
 
 	for(int32_t i = 0; i < (int32_t)vtrSlaves.size(); i++)  
 	{
-		Worker::Send(vtrSlaves[i].c_str(), "get_patt_cnt", json_req_body, json_resp); 
+		Worker::SendCmd(vtrSlaves[i].c_str(), "get_patt_cnt", json_req_body, json_resp); 
 		patt_cnt = json_resp["patts"].asInt(); 
-		Worker::Send(vtrSlaves[i].c_str(), "is_updating", json_req_body, json_resp); 
+		Worker::SendCmd(vtrSlaves[i].c_str(), "is_updating", json_req_body, json_resp); 
 		is_updating = json_resp["updating"].asBool(); 
 		vtr_status.push_back(pair<string, pair<int32_t, bool> >(vtrSlaves[i], pair<int32_t, bool>(patt_cnt, is_updating))); 
 	}
@@ -110,9 +110,9 @@ void Reset(vector<string>& vtrSlaves)
 
 			for(int32_t i = 0; i < (int32_t)vtrSlaves.size(); i++)  
 			{
-				Worker::Send(vtrSlaves[i].c_str(), "release", json_req_body, json_resp); 
+				Worker::SendCmd(vtrSlaves[i].c_str(), "release", json_req_body, json_resp); 
 				while(json_resp["ret"].asInt() != _METIS_PLAT_SUCCESS) 
-					Worker::Send(vtrSlaves[i].c_str(), "release", json_req_body, json_resp); 
+					Worker::SendCmd(vtrSlaves[i].c_str(), "release", json_req_body, json_resp); 
 				printf("(%d) slave[%s] has been reset.\n", i+1, vtrSlaves[i].c_str()); 	
 			}	
 			break; 

@@ -12,7 +12,6 @@ using namespace metis_pred;
 Model_MLP::Model_MLP() : Model(_MODEL_MLP)
 {
 	m_whs = NULL; 
-	m_bnhs = NULL;
 }
 
 
@@ -58,7 +57,6 @@ bool Model_MLP::Load(const char* sModelFile)
 			// create matrices
 			hl = (int32_t)m_paramsMLP.vtr_hidden.size(); 
 			m_whs = new Matrix[hl]; 
-			m_bnhs = new Matrix[hl]; 
 		}
 		else if(str.find("@weight_hidden_") == 0)
 		{
@@ -76,35 +74,10 @@ bool Model_MLP::Load(const char* sModelFile)
 				return false; 
 			}	
 		}
-		else if(str.find("@batch_normalization_hidden_") == 0)
-		{
-			StringArray ar(str.c_str(), "_"); 
-			sscanf(ar.GetString(ar.Count()-1).c_str(), "%d", &idx); 
-			if(idx >= hl)
-				continue; 
-			if(idx == 0)
-				m_bnhs[idx].Create(m_paramsMLP.input - 1, 2); 
-			else	
-				m_bnhs[idx].Create(m_paramsMLP.vtr_hidden[idx-1], 2); 
-			if(!Matrix::Read_Matrix(m_bnhs[idx], ifs))
-			{
-				ifs.close(); 
-				return false; 
-			}	
-		}
 		else if(str == "@weight_output")
 		{
 			m_wo.Create(m_paramsMLP.vtr_hidden[hl-1], m_paramsMLP.output); 
 			if(!Matrix::Read_Matrix(m_wo, ifs))
-			{
-				ifs.close(); 
-				return false; 
-			}	
-		}
-		else if(str == "@batch_normalization_output")
-		{
-			m_bno.Create(m_paramsMLP.vtr_hidden[hl-1], 2);
-			if(!Matrix::Read_Matrix(m_bno, ifs))
 			{
 				ifs.close(); 
 				return false; 
@@ -149,26 +122,6 @@ bool Model_MLP::Save(const char* sModelFile)
 	Matrix::Print_Matrix(ofs, m_wo); 
 	ofs<<endl; 
 
-	// save batch normalization matrices	
-	if(m_bnhs)
-	{
-		for(int32_t h = 0; h < hl; h++) 
-		{
-			if(!m_bnhs[h].IsNull())
-			{
-				ofs<<"@batch_normalization_hidden_"<<h<<endl; 
-				Matrix::Print_Matrix(ofs, m_bnhs[h]);
-				ofs<<endl; 
-			}
-		}
-	}
-	if(!m_bno.IsNull())
-	{
-		ofs<<"@batch_normalization_output"<<endl; 
-		Matrix::Print_Matrix(ofs, m_bno); 
-		ofs<<endl; 
-	}
-
 	ofs.close(); 
 	return true; 
 }
@@ -191,24 +144,6 @@ string Model_MLP::ToString()
 	}
 	str += "|@wo:";
 	str += m_wo.ToString(); 
-
-	if(m_bnhs)
-	{
-		for(int32_t h = 0; h < hl; h++) 	
-		{
-			if(!m_bnhs[h].IsNull())
-			{
-				sprintf(stmp, "|@bnh_%d:", h); 
-				str += stmp; 	
-				str += m_bnhs[h].ToString(); 
-			}
-		}
-	}
-	if(!m_bno.IsNull())
-	{
-		str += "|@bno:";
-		str += m_bno.ToString(); 
-	}	
 
 	return str; 
 }
@@ -238,7 +173,6 @@ bool Model_MLP::FromString(const char* sStr)
 			// create matrices
 			hl = (int32_t)m_paramsMLP.vtr_hidden.size(); 
 			m_whs = new Matrix[hl]; 
-			m_bnhs = new Matrix[hl]; 
 		}
 		else if(ar.GetString(0).find("@wh_") == 0)
 		{
@@ -259,25 +193,6 @@ bool Model_MLP::FromString(const char* sStr)
 			if(!m_wo.FromString(ar.GetString(1).c_str()))
 				return false; 	
 		}
-		else if(ar.GetString(0).find("@bnh_") == 0)
-		{
-			StringArray ar_idx(ar.GetString(0).c_str(), "_"); 
-			sscanf(ar_idx.GetString(1).c_str(), "%d", &idx); 
-			if(idx >= hl)
-				continue; 
-			if(idx == 0)
-				m_bnhs[idx].Create(m_paramsMLP.input - 1, 2); 
-			else	
-				m_bnhs[idx].Create(m_paramsMLP.vtr_hidden[idx-1], 2); 
-			if(!m_bnhs[idx].FromString(ar.GetString(1).c_str()))
-				return false; 
-		}
-		else if(ar.GetString(0) == "@bno")
-		{
-			m_bno.Create(m_paramsMLP.vtr_hidden[hl-1], 2);
-			if(!m_bno.FromString(ar.GetString(1).c_str()))
-				return false; 	
-		}
 	}
 
 	return true; 
@@ -291,13 +206,7 @@ void Model_MLP::Release()
 		delete [] m_whs; 
 		m_whs = NULL; 
 	}
-	if(m_bnhs)
-	{
-		delete [] m_bnhs; 
-		m_bnhs = NULL; 
-	}
 	m_wo.Release(); 
-	m_bno.Release(); 
 }
 
 
@@ -313,13 +222,13 @@ double Model_MLP::Predict(vector<pair<int32_t,double> >& vtrFeat, const int32_t 
 	for(int32_t h = 0; h < hl; h++)
 	{
 		if(h == 0)
-			ActivateHiddenLowest(ahs[h], m_paramsMLP.vtr_hidden[h], vtrFeat, m_paramsMLP.act_hidden, &(m_whs[h]), &(m_bnhs[h]));    
+			ActivateHiddenLowest(ahs[h], m_paramsMLP.vtr_hidden[h], vtrFeat, m_paramsMLP.act_hidden, &(m_whs[h])); 
 		else	
-			ActivateHidden(ahs[h], m_paramsMLP.vtr_hidden[h], ahs[h-1], m_paramsMLP.vtr_hidden[h-1], m_paramsMLP.act_hidden, &(m_whs[h]), &(m_bnhs[h]));  
+			ActivateHidden(ahs[h], m_paramsMLP.vtr_hidden[h], ahs[h-1], m_paramsMLP.vtr_hidden[h-1], m_paramsMLP.act_hidden, &(m_whs[h])); 
 	}
 
 	// calculate output value
-	double pred = ActivateOutput(ahs[hl-1], m_paramsMLP.vtr_hidden[hl-1], m_paramsMLP.act_output, &m_wo, &m_bno, nTarget);  
+	double pred = ActivateOutput(ahs[hl-1], m_paramsMLP.vtr_hidden[hl-1], m_paramsMLP.act_output, &m_wo, nTarget);  
 
 	for(int32_t h = 0; h < hl; h++)
 		delete [] ahs[h];
@@ -343,29 +252,17 @@ bool Model_MLP::CombineWith(Model* pModel, const double w0, const double w1)
 	{
 		if(!m_whs[k].CombineWith(p_model->m_whs[k], w0, w1))
 			return false;
-
-		if(m_bnhs && p_model->m_bnhs)
-		{
-			if(!m_bnhs[k].IsNull() && !p_model->m_bnhs[k].IsNull())
-				if(!m_bnhs[k].CombineWith(p_model->m_bnhs[k], w0, w1))
-					return false;	
-		}
 	}
 
 	if(!m_wo.CombineWith(p_model->m_wo, w0, w1))
 		return false;
-	if(!m_bno.IsNull() && !p_model->m_bno.IsNull())
-	{
-		if(!m_bno.CombineWith(p_model->m_bno, w0, w1))
-			return false; 
-	}
 
 	return true; 
 }
 
 
 void Model_MLP::ActivateHiddenLowest(double* up_a, const int32_t up_size, vector<pair<int32_t,double> >& vtrFeat, 
-		const EActType up_act_type, Matrix* p_w, Matrix* p_bn)
+		const EActType up_act_type, Matrix* p_w)
 {
 	int32_t i; 
 	for(int32_t j = 0; j < up_size; j++) 
@@ -376,14 +273,6 @@ void Model_MLP::ActivateHiddenLowest(double* up_a, const int32_t up_size, vector
 			i = vtrFeat[k].first;
 			if(i >= p_w->Rows() - 1)
 				continue; 
-			if(p_bn)
-			{
-				if(!p_bn->IsNull())
-				{
-					up_a[j] += (vtrFeat[k].second - (*p_bn)[i][0]) / (*p_bn)[i][1] * (*p_w)[i][j];
-					continue; 
-				}
-			}
 			up_a[j] += vtrFeat[k].second * (*p_w)[i][j]; 
 		}
 		up_a[j] += (*p_w)[p_w->Rows()-1][j]; 
@@ -393,44 +282,24 @@ void Model_MLP::ActivateHiddenLowest(double* up_a, const int32_t up_size, vector
 
 
 void Model_MLP::ActivateHidden(double* up_a, const int32_t up_size, const double* low_a, const int32_t low_size, 
-		const EActType up_act_type, Matrix* p_w, Matrix* p_bn)
+		const EActType up_act_type, Matrix* p_w)
 {
 	for(int32_t j = 0; j < up_size; j++) 
 	{
 		up_a[j] = 0.0; 
 		for(int32_t i = 0; i < low_size; i++) 
-		{
-			if(p_bn)
-			{
-				if(!p_bn->IsNull())
-				{
-					up_a[j] += (low_a[i] - (*p_bn)[i][0]) / (*p_bn)[i][1] * (*p_w)[i][j];
-					continue; 
-				}
-			}
 			up_a[j] += low_a[i] * (*p_w)[i][j];
-		}
 		up_a[j] = Activation::Activate(up_a[j], up_act_type);
 	}
 }
 
 
 double Model_MLP::ActivateOutput(const double* low_a, const int32_t low_size, 
-		const EActType up_act_type, Matrix* p_w, Matrix* p_bn, const int32_t nTarget)
+		const EActType up_act_type, Matrix* p_w, const int32_t nTarget)
 {
 	double sum = 0.0; 
 	for(int32_t i = 0; i < low_size; i++) 
-	{
-		if(p_bn)
-		{
-			if(!p_bn->IsNull())
-			{
-				sum += (low_a[i] - (*p_bn)[i][0]) / (*p_bn)[i][1] * (*p_w)[i][nTarget];
-				continue; 
-			}
-		}
 		sum += low_a[i] * (*p_w)[i][nTarget];
-	}
 	return Activation::Activate(sum, up_act_type); 
 }
 

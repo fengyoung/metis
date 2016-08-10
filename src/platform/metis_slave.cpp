@@ -32,18 +32,50 @@ int req_handle(void *handle_data, char *input, uint32_t input_len, char *output,
 	char* resp_body = output + sizeof(woo::binary_head_t);
 	input[input_len] = '\0';
 
-	Json::Value json_req, json_resp; 
-
-	if(JsonTransf::StringToJsonCpp(json_req, req_body))
+	int32_t off = 0; 
+	int32_t req_body_len = (int32_t)input_len - (int32_t)sizeof(woo::binary_head_t); 
+	while(off < req_body_len)
 	{
-		g_worker.WorkCore(json_req, json_resp); 
+		if(req_body[off] == '@')
+			break; 
+		off++; 	
+	}
+
+	Json::Value json_req, json_resp; 
+	
+	if(off == req_body_len)
+	{
+		json_resp["ret"] = _METIS_PLAT_PARSEREQ_HEADER_FAIL; 
+		json_resp["msg"] = "parse request header fail"; 
+		LOG_ERROR("Failed to parse request header"); 
 	}
 	else
 	{
-		json_resp["ret"] = _METIS_PLAT_PARSEREQ_FAIL; 
-		json_resp["msg"] = "parse request json fail"; 
-		LOG_ERROR("Failed to parse request json"); 
+		if(strncmp(req_body, "METIS_CMD@", strlen("METIS_CMD@")) == 0)
+		{
+			if(JsonTransf::StringToJsonCpp(json_req, req_body + off + 1))
+			{
+				g_worker.WorkCore(json_req, json_resp); 
+			}
+			else
+			{
+				json_resp["ret"] = _METIS_PLAT_PARSEREQ_FAIL; 
+				json_resp["msg"] = "parse request json fail"; 
+				LOG_ERROR("Failed to parse request json"); 
+			}
+		}
+		else if(strncmp(req_body, "METIS_BINARY_PATT@", strlen("METIS_BINARY_PATT@")) == 0)
+		{
+			g_worker.Work_RecvBinaryPatt(req_body + off + 1, req_body_len - off - 1, json_resp); 				
+		}
+		else
+		{
+			json_resp["ret"] = _METIS_PLAT_PARSEREQ_HEADER_FAIL; 
+			json_resp["msg"] = "parse request header fail"; 
+			LOG_ERROR("Failed to parse request header"); 
+		}
 	}
+
 
 	string str_resp = JsonTransf::JsonCppToString(json_resp); 
 	strcpy(resp_body, str_resp.c_str()); 
