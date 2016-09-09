@@ -1,0 +1,24 @@
+* INSTALL
+** depend
+   swig
+*** centos
+   #+BEGIN_EXAMPLE
+   yum install swig
+   #+END_EXAMPLE
+*** mac os
+   #+BEGIN_EXAMPLE
+   brew install swig
+   #+END_EXAMPLE
+** compile metis_predict wrap
+   #+BEGIN_EXAMPLE
+   swig -python -c++ metis_predict.i      
+   #+END_EXAMPLE
+** compile metis_predict.so
+   #+BEGIN_EXAMPLE
+   python setup.py build_ext --inplace
+   #+END_EXAMPLE
+* DEMO
+  just run
+  #+BEGIN_EXAMPLE
+  python demo.py [model] [test_data]
+  #+END_EXAMPLE
