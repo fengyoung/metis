@@ -152,6 +152,7 @@ int main(int argc, char** argv)
 	else
 		DoPredict(argv[3], p_model, target_off, argv[4]); 
 
+	delete p_model; 
 	return 0; 
 }
 
