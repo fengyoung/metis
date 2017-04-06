@@ -44,7 +44,7 @@ bool Model_MLP::FromString(const char* sStr)
 }
 
 
-double Model_MLP::Predict(vector<pair<int32_t,double> >& vtrFeat, const int32_t nTarget)
+double Model_MLP::Predict(vector<pair<int32_t,double> >& vtrFeat, const int32_t nTarget, const bool bOutliersCheck)
 {
 	if(nTarget < 0 || nTarget >= N_Output())
 		return 0.0; 
@@ -54,7 +54,12 @@ double Model_MLP::Predict(vector<pair<int32_t,double> >& vtrFeat, const int32_t 
 	for(size_t k = 0; k < vtrFeat.size(); k++) 
 	{
 		if(vtrFeat[k].first < x_len)
-			x[vtrFeat[k].first] = vtrFeat[k].second; 
+		{
+			if(bOutliersCheck)
+				x[vtrFeat[k].first] = fabs(vtrFeat[k].second) < 100.0 ? vtrFeat[k].second : 0.0;
+			else
+				x[vtrFeat[k].first] = vtrFeat[k].second; 
+		}
 	}
 	double pred = Predict(x, x_len, nTarget); 
 	delete x; 

@@ -42,7 +42,7 @@ public:
 	virtual string ToString() = 0; 
 	virtual bool FromString(const char* sStr) = 0; 
 
-	virtual double Predict(vector<pair<int32_t,double> >& vtrFeat, const int32_t nTarget = 0) = 0;
+	virtual double Predict(vector<pair<int32_t,double> >& vtrFeat, const int32_t nTarget = 0, const bool bOutliersCheck = true) = 0;
 	virtual double Predict(const double* x, const int32_t nLen, const int32_t nTarget = 0) = 0; 
 
 	virtual int32_t N_Input() = 0; 
