@@ -6,6 +6,7 @@ using namespace metis_uti;
 #include <iostream>
 using namespace std; 
 #include <string.h>
+#include <math.h>
 #include <stdio.h>
 
 
@@ -94,7 +95,7 @@ string Pattern::ToString()
 }
 
 
-bool Pattern::FromString(const char* sStr)
+bool Pattern::FromString(const char* sStr, const bool bOutliersCheck) 
 {
 	StringArray array(sStr, ";"); 
 	if(array.Count() != 2)
@@ -114,8 +115,11 @@ bool Pattern::FromString(const char* sStr)
 		delete m_x; 
 	m_x = new double[m_nXCnt];
 	for(int32_t i = 0; i < m_nXCnt; i++)	
+	{
 		sscanf(arr2.GetString(i).c_str(), "%lf", &(m_x[i]));
-
+		if(bOutliersCheck)
+			m_x[i] = fabs(m_x[i]) < 100.0 ? m_x[i] : 0; 
+	}
 	return true; 
 }
 

@@ -56,10 +56,11 @@ public:
 	//
 	// DESCRITPION
 	//	sStr: pattern in string format
+	//	bOutliersCheck: flag of outliers checking
 	//
 	// RETURN
 	//	true for success, false for some errors
-	bool FromString(const char* sStr);  
+	bool FromString(const char* sStr, const bool bOutliersCheck = true);  
 
 	// NAME
 	//	ToStream - transform current pattern to bit-stream 

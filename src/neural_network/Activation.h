@@ -12,6 +12,8 @@
 // +----------+-------------------------------------------------+-----------------------+
 // | ReLU     | y(x) = MAX(0, x)                                |  y'(x) = 0 or 1       |
 // +----------+-------------------------------------------------+-----------------------+
+// | ReLU6    | y(x) = MIN(MAX(0, x), 6)                        |  y'(x) = 0 or 1       |
+// +----------+-------------------------------------------------+-----------------------+
 // | Softmax  | y(xi) = exp(xi) / SUM(exp(xj))                  |  y'(x) = y * (1 - y)  |
 // +----------+-------------------------------------------------+-----------------------+
 //
@@ -79,6 +81,10 @@ public:
 	// ReLU & its derivation
 	static double ReLU(const double x); 
 	static double DReLU(const double y); 
+	
+	// ReLU6 & its derivation
+	static double ReLU6(const double x); 
+	static double DReLU6(const double y); 
 
 	// Softmax & its derivation
 	static double Softmax(const int32_t k, const double* x, const int32_t len); 

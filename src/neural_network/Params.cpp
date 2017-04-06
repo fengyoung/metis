@@ -33,6 +33,8 @@ string ActConv::ActName(const EActType eActType)
 			return "tanh";
 		case _ACT_RELU:
 			return "relu";
+		case _ACT_RELU6:
+			return "relu6";
 		case _ACT_SOFTMAX: 
 			return "softmax";
 		default:
@@ -52,6 +54,8 @@ EActType ActConv::ActType(const char* sActTypeName)
 		return _ACT_TANH; 
 	else if(strcmp(sActTypeName, "relu") == 0)
 		return _ACT_RELU; 
+	else if(strcmp(sActTypeName, "relu6") == 0)
+		return _ACT_RELU6; 
 	else if(strcmp(sActTypeName, "softmax") == 0)
 		return _ACT_SOFTMAX; 
 	else

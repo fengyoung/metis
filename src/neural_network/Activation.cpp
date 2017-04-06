@@ -38,6 +38,9 @@ double Activation::Activate(const double x, const EActType eActType)
 		case _ACT_RELU:
 			y = ReLU(x);
 			break; 
+		case _ACT_RELU6:
+			y = ReLU6(x);
+			break; 
 		case _ACT_SOFTMAX:
 			y = exp(x);
 			break; 
@@ -64,6 +67,9 @@ double Activation::DActivate(const double y, const EActType eActType)
 			break; 
 		case _ACT_RELU:
 			d = DReLU(y);
+			break; 
+		case _ACT_RELU6:
+			d = DReLU6(y);
 			break; 
 		case _ACT_SOFTMAX:
 			d = DSoftmax(y);
@@ -120,6 +126,18 @@ double Activation::ReLU(const double x)
 double Activation::DReLU(const double y)
 {
 	return (y > 0.0 ? 1.0 : 0.0); 
+}
+
+
+double Activation::ReLU6(const double x)
+{
+	return min(max(0.0, x), 6.0); 
+}
+
+
+double Activation::DReLU6(const double y)
+{
+	return (y > 0.0 && y < 6.0) ? 1.0 : 0.0; 
 }
 
 

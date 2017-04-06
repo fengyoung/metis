@@ -20,6 +20,7 @@ enum EActType
 	_ACT_SIGMOID,
 	_ACT_TANH,
 	_ACT_RELU,
+	_ACT_RELU6,
 	_ACT_SOFTMAX,
 	_ACT_NONE
 };
